@@ -44,6 +44,7 @@ func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
+
     title := r.PostFormValue("title")
     body := r.PostFormValue("body")
 
@@ -64,12 +65,11 @@ func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
     if len(errors) == 0 {
         fmt.Fprint(w, "验证通过!<br>")
     } else {
-        storeURL, _ := router.Get("article.store").URL()
-
+        storeURL, _ := router.Get("articles.store").URL()
         data := ArticlesFormData{
-            Title: title,
-            Body: body,
-            URL: storeURL,
+            Title:  title,
+            Body:   body,
+            URL:    storeURL,
             Errors: errors,
         }
         tmpl, err := template.ParseFiles("resources/views/articles/create.gohtml")
@@ -83,7 +83,6 @@ func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
         }
     }
 }
-
 
 
 
@@ -139,7 +138,7 @@ func main() {
 
     router.HandleFunc("/articles/{id:[0-9]+}", articlesShowHandler).Methods("GET").Name("articles.show")
     router.HandleFunc("/articles", articlesIndexHandler).Methods("GET").Name("articles.index")
-    router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
+    router.HandleFunc("/articles/create", articlesStoreHandler).Methods("POST").Name("articles.store")
     router.HandleFunc("/articles/create", articlesCreateHandler).Methods("GET").Name("articles.create")
 
     // 自定义 404 页面
