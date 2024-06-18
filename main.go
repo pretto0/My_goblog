@@ -15,6 +15,7 @@ import (
     "My_goblog/pkg/logger"
     "My_goblog/pkg/types"
     "My_goblog/pkg/database"
+    "My_goblog/bootstrap"
 
     "github.com/gorilla/mux"
 )
@@ -72,20 +73,6 @@ func validateArticleFormData(title string, body string) map[string]string {
     }
 
     return errors
-}
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "<h1>Hello, 欢迎来到 goblog！</h1>")
-}
-
-func aboutHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "此博客是用以记录编程笔记，如您有反馈或建议，请联系 "+
-        "<a href=\"mailto:summer@example.com\">summer@example.com</a>")
-}
-
-func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-    w.WriteHeader(http.StatusNotFound)
-    fmt.Fprint(w, "<h1>请求页面未找到 :(</h1><p>如有疑惑，请联系我们。</p>")
 }
 
 func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
@@ -399,13 +386,10 @@ func main() {
     database.Initialize()
     db = database.DB
 
-    route.Initialize()
-    router = route.Router
+    bootstrap.SetupDB()
+    
+    router = bootstrap.SetupRoute()
 
-    router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
-    router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
-
-    router.HandleFunc("/articles/{id:[0-9]+}", articlesShowHandler).Methods("GET").Name("articles.show")
     router.HandleFunc("/articles", articlesIndexHandler).Methods("GET").Name("articles.index")
     router.HandleFunc("/articles/create", articlesStoreHandler).Methods("POST").Name("articles.store")
     router.HandleFunc("/articles/create", articlesCreateHandler).Methods("GET").Name("articles.create")
@@ -413,8 +397,7 @@ func main() {
     router.HandleFunc("/articles/{id:[0-9]+}", articlesUpdateHandler).Methods("POST").Name("articles.update")
     router.HandleFunc("/articles/index", articlesIndexHandler).Methods("GET").Name("articles.index")
     router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesDeleteHandler).Methods("POST").Name("articles.delete")
-    // 自定义 404 页面
-    router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+
 
     router.Use(forceHTMLMiddleware)
 
