@@ -44,3 +44,20 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
         logger.LogError(err)
     }
 }
+
+func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request){
+    articles, err := article.GetALL()
+
+    if err != nil {
+        logger.LogError(err)
+        w.WriteHeader(http.StatusInternalServerError)
+        fmt.Fprint(w, "500 服务器内部错误")
+    }else{
+        tmpl, err := template.ParseFiles("resources/views/articles/index.gohtml")
+        logger.LogError(err)
+
+        err = tmpl.Execute(w, articles)
+        logger.LogError(err)
+    }
+
+}
